@@ -1,0 +1,3 @@
+﻿  Demo.cpp
+a:\belajar\pemrograman game\pemrograman_game\vs\lesson06\demo.cpp(112): warning C4804: '>': unsafe use of type 'bool' in operation
+  Lesson06.vcxproj -> A:\belajar\Pemrograman Game\Pemrograman_Game\vs\Debug\Lesson06.exe

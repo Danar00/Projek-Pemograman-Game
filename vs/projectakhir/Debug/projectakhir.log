@@ -1,0 +1,4 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Lesson06.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Demo.cpp
+e:\tik ub\semester 6\pemgame\code\pemrograman_game\vs\projectakhir\demo.cpp(82): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  projectakhir.vcxproj -> E:\TIK UB\Semester 6\PemGame\Code\Pemrograman_Game\vs\Debug\projectakhir.exe
