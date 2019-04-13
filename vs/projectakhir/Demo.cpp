@@ -101,61 +101,47 @@ void Demo::UpdatePlayerSpriteAnim(float deltaTime)
 
 void Demo::ControlPlayerSprite(float deltaTime)
 {
-	//bool jump = false;
-	//walk_anim = false;
-	///*oldxpos = xpos;
-	//oldypos = ypos;*/
+	bool jump = false;
+	walk_anim = false;
+	/*oldxpos = xpos;
+	oldypos = ypos;*/
 
-	//if (IsKeyDown("Move Right")) {
-	//	xpos += deltaTime * xVelocity;
-	//	flip = 0;
-	//	walk_anim = true;
-	//}
+	if (IsKeyDown("Move Right")) {
+		xpos[1] += deltaTime * xVelocity[1];
+		flip = 0;
+		walk_anim = true;
+	}
 
-	//if (IsKeyDown("Move Left")) {
-	//	xpos -= deltaTime * xVelocity;
-	//	flip = 1;
-	//	walk_anim = true;
-	//}
-	//if (IsKeyDown("Jump")) {
-	//	if (onGround) {
-	//		yVelocity = -5.0f * deltaTime;
-	//		onGround = false;
-	//	}
-	//}
+	if (IsKeyDown("Move Left")) {
+		xpos[1] -= deltaTime * xVelocity[1];
+		flip = 1;
+		walk_anim = true;
+	}
 
-	//if (IsKeyUp("Jump")) {
-	//	if (yVelocity < -6.0f) {
-	//		yVelocity = -6.0f;
-	//	}
-	//}
-
-	//yVelocity += gravity * deltaTime;
-	//ypos += deltaTime * yVelocity;
-
-	//if (ypos > yposGround) {
-	//	ypos = yposGround;
-	//	yVelocity = 0;
-	//	onGround = true;
-	//}
+	if (IsKeyDown("Move Up")) {
+		ypos[1] -= deltaTime * yVelocity[1];
+	}
+	if (IsKeyDown("Move Down")) {
+		ypos[1] += deltaTime * yVelocity[1];
+	}
 	
 
 	
-	// check collision between bart and crate
-	//if (IsCollided(xpos, ypos, frame_width, frame_height, xpos2, ypos2, frame_width2, frame_height2)) {
-	//	bool onTop = false;
-	//	cout << "yspos 1 :" << ypos << endl;
-	//	cout << "yspos 2 :" << ypos2 << endl;
-	//	cout << "xpos 1 :" << xpos << endl;
-	//	cout << "xpos 2 :" << xpos2 << endl;
-	//		onTop = true;
-	//		ypos = oldypos;
-	//		onGround = true;
-	//		if (ypos2 > ypos || ypos == yposGround) {
-	//			xpos = oldxpos;
-	//		}
-	//		
-	//}
+	 //check collision between bart and crate
+	/*if (IsCollided(xpos[1], ypos[1], frame_width[1], frame_height[1], xpos2, ypos2, frame_width2, frame_height2)) {
+		bool onTop = false;
+		cout << "yspos 1 :" << ypos << endl;
+		cout << "yspos 2 :" << ypos2 << endl;
+		cout << "xpos 1 :" << xpos << endl;
+		cout << "xpos 2 :" << xpos2 << endl;
+			onTop = true;
+			ypos[1] = oldypos[1];
+			onGround = true;
+			if (ypos2 > ypos[1] || ypos[1] == yposGround) {
+				xpos[1] = oldxpos[1];
+			}
+			
+	}*/
 }
 
 void Demo::DrawSprite(int i) {
@@ -297,6 +283,8 @@ void Demo::Instantiate(float x, float y, int i, char* vertex,char* fragment,char
 void Demo::InputMap() {
 	InputMapping("Move Right", SDLK_RIGHT);
 	InputMapping("Move Left", SDLK_LEFT);
+	InputMapping("Move Up", SDLK_UP);
+	InputMapping("Move Down", SDLK_DOWN);
 	InputMapping("Move Right", SDLK_d);
 	InputMapping("Move Left", SDLK_a);
 	InputMapping("Move Right", SDL_BUTTON_RIGHT);
