@@ -119,10 +119,12 @@ void Demo::ControlPlayerSprite(float deltaTime)
 	}
 
 	if (IsKeyDown("Move Up")) {
-		ypos[1] -= deltaTime * yVelocity[1];
+		ypos[1] -= (deltaTime +2) * yVelocity[1]+3;
+	}
+	else {
+		ypos[1] += deltaTime * yVelocity[1]+2;
 	}
 	if (IsKeyDown("Move Down")) {
-		ypos[1] += deltaTime * yVelocity[1];
 	}
 	
 
