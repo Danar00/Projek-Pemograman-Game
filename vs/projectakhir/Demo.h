@@ -25,7 +25,8 @@ public:
 	virtual void Init();
 	virtual void Update(float deltaTime);
 	virtual void Render();
-	float frame_width[OBJECTNUMBER], frame_height[OBJECTNUMBER], frameNumber[OBJECTNUMBER], frame_width2 = 0, frame_height2 = 0;
+	
+	float frame_width[OBJECTNUMBER], frame_height[OBJECTNUMBER], frameNumber[OBJECTNUMBER], frame_width2 = 0, frame_height2 = 0,score=0;
 private:
 	float frame_dur[OBJECTNUMBER], oldxpos[OBJECTNUMBER],oldypos[OBJECTNUMBER], xpos[OBJECTNUMBER], ypos[OBJECTNUMBER], xpos2 = 0, ypos2 = 0, gravity = 0, xVelocity[OBJECTNUMBER], yVelocity[OBJECTNUMBER], yposGround = 0, bgControl = 0;
 	GLuint VBO[OBJECTNUMBER], VAO[OBJECTNUMBER], EBO[OBJECTNUMBER], texture[OBJECTNUMBER], program[OBJECTNUMBER], VBO2, VAO2, EBO2, texture2, program2,program3;

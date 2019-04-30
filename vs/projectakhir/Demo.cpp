@@ -27,17 +27,25 @@ void Demo::Init()
 
 void Demo::Update(float deltaTime)
 {
-	cout << (rand() % 100) + 1 << endl;
+
 	if (IsKeyDown("Quit")) {
 		SDL_Quit();
 		exit(0);
 	}
-
+	score += deltaTime;
+	
 	UpdateBackground(deltaTime);
 	ControlPlayerSprite(deltaTime);
 	UpdateObstacle(deltaTime, 2, true);
 	UpdateObstacle(deltaTime, 3, true);
 	UpdateObstacle(deltaTime, 4, false);
+	for (int i = 2; i <= 4; i++)
+	{
+		if (IsCollided(xpos[i], ypos[i], frame_width[i], frame_height[i], xpos[1], ypos[1], frame_height[1], frame_height[1])) {
+			cout <<  score/1000 << endl;
+		}
+	}
+	
 }
 
 
@@ -127,23 +135,6 @@ void Demo::ControlPlayerSprite(float deltaTime)
 	if (IsKeyDown("Move Down")) {
 	}
 	
-
-	
-	 //check collision between bart and crate
-	/*if (IsCollided(xpos[1], ypos[1], frame_width[1], frame_height[1], xpos2, ypos2, frame_width2, frame_height2)) {
-		bool onTop = false;
-		cout << "yspos 1 :" << ypos << endl;
-		cout << "yspos 2 :" << ypos2 << endl;
-		cout << "xpos 1 :" << xpos << endl;
-		cout << "xpos 2 :" << xpos2 << endl;
-			onTop = true;
-			ypos[1] = oldypos[1];
-			onGround = true;
-			if (ypos2 > ypos[1] || ypos[1] == yposGround) {
-				xpos[1] = oldxpos[1];
-			}
-			
-	}*/
 }
 
 void Demo::DrawSprite(int i) {
