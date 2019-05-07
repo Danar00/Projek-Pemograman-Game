@@ -1,6 +1,8 @@
 #include "Demo.h"
 
 
+
+
 Demo::Demo()
 {
 }
@@ -12,17 +14,148 @@ Demo::~Demo()
 
 void Demo::Init()
 {
+	isGameOver = false;
+
+	InitText(8);
+	this->program[8] = BuildShader("shader.vert", "shader.frag");
+	
+	
 	Instantiate(0,0,0, "parralax.vert", "parralax.frag", "seamless.png", 1.0f, 1.0f);
-	Instantiate(256,256,1, "playerSprite.vert", "playerSprite.frag", "player.png", 1.0f, 1.0f);
+	
 	Instantiate(810, 256, 2, "crateSprite.vert", "crateSprite.frag", "obstacle3.png", 1.0f, 1.0f);
 	Instantiate(1215, 128, 3, "crateSprite.vert", "crateSprite.frag", "obstacle2.png", 1.0f, 1.0f);
 	Instantiate(1100, 400, 4, "crateSprite.vert", "crateSprite.frag", "obstacle1.png", 1.0f, 1.0f);
+	Instantiate(256, 256, 5, "crateSprite.vert", "crateSprite.frag", "game_over.jpg", 1.0f, 1.0f);
+	Instantiate(256, 256, 1, "playerSprite.vert", "playerSprite.frag", "player.png", 1.0f, 1.0f);
 	xVelocity[2] = 5;
 	xVelocity[3] = 4;
-	xVelocity[4] = 3;
-	
-	//BuildCrateSprite();
+	xVelocity[4] = 3;	  
+
 	InputMap();
+}
+
+
+void Demo::GameOver() {
+	
+	RenderText(8, "Poin", 400, 800, 10.0f, vec3(1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f));
+//	Instantiate(1100, 400, 10, "crateSprite.vert", "crateSprite.frag", "game over.jpg", 1.0f, 1.0f);
+	DrawSprite(10);
+}
+
+void Demo::RenderText(int index,string text, GLfloat x, GLfloat y, GLfloat scale, vec3 color)
+{
+	// Activate corresponding render state
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	UseShader(this->program[index]);
+
+	glUniform3f(glGetUniformLocation(this->program[index], "ourColor"), color.x, color.y, color.z);
+	glUniform1i(glGetUniformLocation(this->program[index], "text"), 1);
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(this->program[index], "ourTexture"), 0);
+	mat4 model;
+	glUniformMatrix4fv(glGetUniformLocation(this->program[index], "model"), 1, GL_FALSE, value_ptr(model));
+	glBindVertexArray(VAO[8]);
+
+	// Iterate through all characters
+	string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = Characters[*c];
+		GLfloat xpos = x + ch.Bearing.x * scale;
+		GLfloat ypos = y + (this->Characters['H'].Bearing.y - ch.Bearing.y) * scale;
+		GLfloat w = ch.Size.x * scale;
+		GLfloat h = ch.Size.y * scale;
+		// Update VBO for each character
+
+		GLfloat vertices[] = {
+			// Positions   // Texture Coords
+			xpos + w,	ypos + h,	1.0f, 1.0f, // Bottom Right
+			xpos + w,	ypos,		1.0f, 0.0f, // Top Right
+			xpos,		ypos,		0.0f, 0.0f, // Top Left
+			xpos,		ypos + h,	0.0f, 1.0f  // Bottom Left 
+		};
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// Update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[index]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// Render quad
+		glDrawArrays(GL_QUADS, 0, 4);
+		// Now advance cursors for next glyph (note that advance is number of 1 / 64 pixels)
+		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels(2 ^ 6 = 64)
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);
+}
+void Demo::InitText(int index) {
+	// Init Freetype
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft)) {
+		cout<<("ERROR::FREETYPE: Could not init FreeType Library")<<endl;
+	}
+	FT_Face face;
+	if (FT_New_Face(ft, FONTNAME, 0, &face)) {
+		cout<<("ERROR::FREETYPE: Failed to load font")<<endl;
+	}
+
+	FT_Set_Pixel_Sizes(face, 0, FONTSIZE);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+	for (GLubyte c = 0; c < 128; c++)
+	{
+		// Load character glyph
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+		// Generate texture
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+		// Set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Now store character for later use
+		Character character = {
+			texture,
+			ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<GLuint>(face->glyph->advance.x)
+		};
+		Characters.insert(pair<GLchar, Character>(c, character));
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	glGenVertexArrays(1, &VAO[index]);
+	glGenBuffers(1, &VBO[index]);
+	glBindVertexArray(VAO[index]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[index]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 4, NULL,
+		GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void Demo::Update(float deltaTime)
@@ -43,6 +176,7 @@ void Demo::Update(float deltaTime)
 	{
 		if (IsCollided(xpos[i], ypos[i], frame_width[i], frame_height[i], xpos[1], ypos[1], frame_height[1], frame_height[1])) {
 			cout <<  score/1000 << endl;
+			isGameOver = true;
 		}
 	}
 	
@@ -61,18 +195,16 @@ void Demo::Render()
 	//Set the background color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-	//DrawPlayerSprite();
-	//DrawCrateSprite();
-	/*for (size_t i = 0; i < 10; i++)
-	{
-		DrawSprite(i);
 
-	}*/
 	DrawSprite(0);
 	DrawSprite(1);
 	DrawSprite(2);
 	DrawSprite(3);
 	DrawSprite(4);
+	GameOver();
+	if (isGameOver) {
+		DrawSprite(5);
+	}
 }
 
 void Demo::UpdateBackground(float deltaTime) {
@@ -87,7 +219,8 @@ void Demo::UpdateObstacle(float deltaTime, int i, bool randomized) {
 	{
 		xpos[i] = 802;
 		int range = (int) (600.0f - frame_height[i]);
-		if(randomized) ypos[i] = (rand() % range) + 1;
+		if(randomized) 
+			ypos[i] = (rand() % range) + 1;
 		xVelocity[i]+=0.6f;
 	}
 }
@@ -129,10 +262,14 @@ void Demo::ControlPlayerSprite(float deltaTime)
 	if (IsKeyDown("Move Up")) {
 		ypos[1] -= (deltaTime +2) * yVelocity[1]+3;
 	}
+	
 	else {
 		ypos[1] += deltaTime * yVelocity[1]+2;
 	}
 	if (IsKeyDown("Move Down")) {
+	}
+	if (ypos[1] < 0) {
+		ypos[1] =0;
 	}
 	
 }
