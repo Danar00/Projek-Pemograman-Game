@@ -9,6 +9,7 @@
 
 #include <ft2build.h>
 #include <freetype/freetype.h>
+
 #include <map>
 
 #include <GLM/glm.hpp>

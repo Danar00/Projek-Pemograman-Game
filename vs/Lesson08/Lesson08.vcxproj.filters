@@ -62,5 +62,8 @@
     <Image Include="button_play_hover.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\projectakhir\game_over.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

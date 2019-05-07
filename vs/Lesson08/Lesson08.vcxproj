@@ -138,6 +138,7 @@
     <Font Include="hongkonghustle.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\projectakhir\game_over.png" />
     <Image Include="button_halt.png" />
     <Image Include="button_halt_hover.png" />
     <Image Include="button_opt.png" />
