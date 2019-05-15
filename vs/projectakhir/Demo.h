@@ -4,6 +4,8 @@
 
 #include <SOIL/SOIL.h>
 
+#include <SDL/SDL_mixer.h>
+#include <SDL/SDL_thread.h>
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>

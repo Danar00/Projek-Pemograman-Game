@@ -39,6 +39,12 @@
     <Image Include="game over.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="game_over.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gameOver.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="playerSprite.frag">

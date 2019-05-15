@@ -25,7 +25,7 @@ void Demo::Init()
 	Instantiate(810, 256, 2, "crateSprite.vert", "crateSprite.frag", "obstacle3.png", 1.0f, 1.0f);
 	Instantiate(1215, 128, 3, "crateSprite.vert", "crateSprite.frag", "obstacle2.png", 1.0f, 1.0f);
 	Instantiate(1100, 400, 4, "crateSprite.vert", "crateSprite.frag", "obstacle1.png", 1.0f, 1.0f);
-	Instantiate(256, 256, 5, "crateSprite.vert", "crateSprite.frag", "game_over.jpg", 1.0f, 1.0f);
+	Instantiate(0, 0, 5, "crateSprite.vert", "crateSprite.frag", "gameOver.png", 1.0f, 1.0f);
 	Instantiate(256, 256, 1, "playerSprite.vert", "playerSprite.frag", "player.png", 1.0f, 1.0f);
 	xVelocity[2] = 5;
 	xVelocity[3] = 4;
@@ -37,9 +37,9 @@ void Demo::Init()
 
 void Demo::GameOver() {
 	
-	RenderText(8, "Poin", 400, 800, 10.0f, vec3(1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f));
+	//RenderText(8, "Poin", 400, 800, 10.0f, vec3(1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f));
 //	Instantiate(1100, 400, 10, "crateSprite.vert", "crateSprite.frag", "game over.jpg", 1.0f, 1.0f);
-	DrawSprite(10);
+	//DrawSprite(10);
 }
 
 void Demo::RenderText(int index,string text, GLfloat x, GLfloat y, GLfloat scale, vec3 color)
@@ -56,7 +56,7 @@ void Demo::RenderText(int index,string text, GLfloat x, GLfloat y, GLfloat scale
 	glUniform1i(glGetUniformLocation(this->program[index], "ourTexture"), 0);
 	mat4 model;
 	glUniformMatrix4fv(glGetUniformLocation(this->program[index], "model"), 1, GL_FALSE, value_ptr(model));
-	glBindVertexArray(VAO[8]);
+	glBindVertexArray(VAO[index]);
 
 	// Iterate through all characters
 	string::const_iterator c;
@@ -138,7 +138,8 @@ void Demo::InitText(int index) {
 			texture,
 			ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			static_cast<GLuint>(face->glyph->advance.x)
+			//static_cast<GLuint>(face->glyph->advance.x)
+			face->glyph->advance.x
 		};
 		Characters.insert(pair<GLchar, Character>(c, character));
 	}
@@ -182,8 +183,6 @@ void Demo::Update(float deltaTime)
 	
 }
 
-
-
 void Demo::Render()
 {
 	//Setting Viewport
@@ -194,13 +193,16 @@ void Demo::Render()
 
 	//Set the background color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	mat4 projection;
 
-
-	DrawSprite(0);
+	//RenderText(8, "GAME OVER", 0, 0, 10, vec3(0, 0, 0));
+	
+	//DrawSprite(0);
 	DrawSprite(1);
 	DrawSprite(2);
 	DrawSprite(3);
 	DrawSprite(4);
+	RenderText(8, "./Button and Text Renderer Demo", 10, 10, 1.0f, vec3(244.0f / 255.0f, 12.0f / 255.0f, 116.0f / 255.0f));
 	GameOver();
 	if (isGameOver) {
 		DrawSprite(5);
@@ -425,7 +427,6 @@ void Demo::InputMap() {
 	InputMapping("Quit", SDLK_ESCAPE);
 }
 
-
 void Demo::BuildCrateSprite()
 {
 	this->program2 = BuildShader("crateSprite.vert", "crateSprite.frag");
@@ -497,8 +498,6 @@ void Demo::BuildCrateSprite()
 	ypos2 = GetScreenHeight() - frame_height2;
 }
 
-
-
 void Demo::DrawCrateSprite() {
 	// Bind Textures using texture units
 	glActiveTexture(GL_TEXTURE1);
@@ -526,7 +525,6 @@ bool Demo::IsCollided(float x1, float y1, float width1, float height1,
 	float x2, float y2, float width2, float height2) {
 	return (x1 < x2 + width2 && x1 + width1 > x2 && y1 < y2 + height2 && y1 + height1 > y2);
 }
-
 
 int main(int argc, char** argv) {
 
