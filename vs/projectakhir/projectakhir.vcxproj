@@ -135,6 +135,7 @@
     <Image Include="seamless.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bensound-funkyelement.ogg" />
     <None Include="crateSprite.frag" />
     <None Include="crateSprite.vert" />
     <None Include="parralax.frag" />
@@ -154,6 +155,9 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="hongkonghustle.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="grsites.com_whirls.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

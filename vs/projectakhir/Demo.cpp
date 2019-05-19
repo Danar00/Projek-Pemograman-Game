@@ -10,6 +10,13 @@ Demo::Demo()
 
 Demo::~Demo()
 {
+	if (Mix_Playing(sfx_channel) == 0) {
+		Mix_FreeChunk(sound);
+	}
+	if (music != NULL) {
+		Mix_FreeMusic(music);
+	}
+	Mix_CloseAudio();
 }
 
 void Demo::Init()
@@ -19,12 +26,8 @@ void Demo::Init()
 	this->program = BuildShader("shader.vert", "shader.frag");
 	this->program3 = BuildShader("shader.vert", "shader.frag");
 	isGameOver = false;
-
-	
-	
-	
+	InitAudio();
 	Instantiate(0,0,0, "parralax.vert", "parralax.frag", "seamless.png", 1.0f, 1.0f);
-	
 	Instantiate(810, 256, 2, "crateSprite.vert", "crateSprite.frag", "obstacle3.png", 1.0f, 1.0f);
 	Instantiate(1215, 128, 3, "crateSprite.vert", "crateSprite.frag", "obstacle2.png", 1.0f, 1.0f);
 	Instantiate(1100, 400, 4, "crateSprite.vert", "crateSprite.frag", "obstacle1.png", 1.0f, 1.0f);
@@ -35,6 +38,8 @@ void Demo::Init()
 	xVelocity[4] = 3;	  
 	
 	InputMap();
+	Mix_PlayMusic(music, -1);
+	SDL_Delay(150);
 }
 
 
@@ -223,9 +228,21 @@ void Demo::Render()
 
 	//GameOver();
 	if (isGameOver) {
-		DrawSprite(5);
-		ShowText();
+		GameOver();
 	}
+}
+
+void Demo::GameOver() {
+	DrawSprite(5);
+	if (Mix_Playing(sfx_channel) == 0) {
+		Mix_PauseMusic();
+		SDL_Delay(150);
+		sfx_channel = Mix_PlayChannel(-1, sound, 0);
+		if (sfx_channel == -1) {
+			cout << ("Unable to play WAV file: " + string(Mix_GetError())) << endl;
+		}
+	}
+	ShowText();
 }
 
 void Demo::UpdateBackground(float deltaTime) {
@@ -249,15 +266,15 @@ void Demo::UpdateObstacle(float deltaTime, int i, bool randomized) {
 void Demo::UpdatePlayerSpriteAnim(float deltaTime)
 {
 	//// Update animation
-	////frame_dur += deltaTime;
+	//frame_dur[1] += deltaTime;
 
-	//if (walk_anim && frame_dur > FRAME_DUR) {
+	//if (walk_anim && frame_dur[1] > FRAME_DUR) {
 	//	//frame_dur = 0;
 	//	if (frame_idx == NUM_FRAMES - 1) frame_idx = 0;  else frame_idx++;
 
-	//	// Pass frameIndex to shader
-	//	UseShader(this->program[0]);
-	//	glUniform1i(glGetUniformLocation(this->program[0], "frameIndex"), frame_idx);
+	//	//	// Pass frameIndex to shader
+	//	UseShader(this->program);
+	//	glUniform1i(glGetUniformLocation(this->program, "frameIndex"), frame_idx);
 	//}
 }
 
@@ -544,6 +561,32 @@ void Demo::DrawCrateSprite() {
 bool Demo::IsCollided(float x1, float y1, float width1, float height1,
 	float x2, float y2, float width2, float height2) {
 	return (x1 < x2 + width2 && x1 + width1 > x2 && y1 < y2 + height2 && y1 + height1 > y2);
+}
+
+void Demo::InitAudio() {
+	int flags = MIX_INIT_MP3 | MIX_INIT_FLAC | MIX_INIT_OGG;
+	if (flags != Mix_Init(flags)) {
+		cout<<("Unable to initialize mixer: " + string(Mix_GetError()))<<endl;
+	}
+
+	int audio_rate = 22050; Uint16 audio_format = AUDIO_S16SYS; int audio_channels = 2; int audio_buffers = 4096;
+
+	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0) {
+		cout<<("Unable to initialize audio: " + string(Mix_GetError()))<<endl;
+	}
+
+
+	music = Mix_LoadMUS("bensound-funkyelement.ogg");
+	if (music == NULL) {
+		cout << ("Unable to load Music file: " + string(Mix_GetError())) << endl;
+	}
+
+	sound = Mix_LoadWAV("grsites.com_whirls.wav");
+	if (sound == NULL) {
+		cout << ("Unable to load WAV file: " + string(Mix_GetError())) << endl;
+	}
+
+
 }
 
 int main(int argc, char** argv) {
