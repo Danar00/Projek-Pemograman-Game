@@ -14,10 +14,13 @@ Demo::~Demo()
 
 void Demo::Init()
 {
+	
+	InitText(6);
+	this->program = BuildShader("shader.vert", "shader.frag");
+	this->program3 = BuildShader("shader.vert", "shader.frag");
 	isGameOver = false;
 
-	InitText(8);
-	this->program[8] = BuildShader("shader.vert", "shader.frag");
+	
 	
 	
 	Instantiate(0,0,0, "parralax.vert", "parralax.frag", "seamless.png", 1.0f, 1.0f);
@@ -30,13 +33,15 @@ void Demo::Init()
 	xVelocity[2] = 5;
 	xVelocity[3] = 4;
 	xVelocity[4] = 3;	  
-
+	
 	InputMap();
 }
 
 
-void Demo::GameOver() {
-	
+void Demo::ShowText() {
+	int a = score/1000;
+	std::string scoreText = std::to_string(a);
+	RenderText(6, "Score : " + scoreText, 10, 20, 1.0f, vec3(1, 1, 1));
 	//RenderText(8, "Poin", 400, 800, 10.0f, vec3(1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f));
 //	Instantiate(1100, 400, 10, "crateSprite.vert", "crateSprite.frag", "game over.jpg", 1.0f, 1.0f);
 	//DrawSprite(10);
@@ -48,14 +53,14 @@ void Demo::RenderText(int index,string text, GLfloat x, GLfloat y, GLfloat scale
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	UseShader(this->program[index]);
+	UseShader(this->program3);
 
-	glUniform3f(glGetUniformLocation(this->program[index], "ourColor"), color.x, color.y, color.z);
-	glUniform1i(glGetUniformLocation(this->program[index], "text"), 1);
+	glUniform3f(glGetUniformLocation(this->program3, "ourColor"), color.x, color.y, color.z);
+	glUniform1i(glGetUniformLocation(this->program3, "text"), 1);
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(glGetUniformLocation(this->program[index], "ourTexture"), 0);
+	glUniform1i(glGetUniformLocation(this->program3, "ourTexture"), 0);
 	mat4 model;
-	glUniformMatrix4fv(glGetUniformLocation(this->program[index], "model"), 1, GL_FALSE, value_ptr(model));
+	glUniformMatrix4fv(glGetUniformLocation(this->program3, "model"), 1, GL_FALSE, value_ptr(model));
 	glBindVertexArray(VAO[index]);
 
 	// Iterate through all characters
@@ -90,16 +95,23 @@ void Demo::RenderText(int index,string text, GLfloat x, GLfloat y, GLfloat scale
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_BLEND);
+	mat4 projection;
+	projection = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(this->program3, "projection"), 1, GL_FALSE, value_ptr(projection));
+
 }
 void Demo::InitText(int index) {
 	// Init Freetype
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
-		cout<<("ERROR::FREETYPE: Could not init FreeType Library")<<endl;
+		cout << "LIBRARY NOT FOUNTD" << endl;
+		//Err("ERROR::FREETYPE: Could not init FreeType Library");
 	}
 	FT_Face face;
 	if (FT_New_Face(ft, FONTNAME, 0, &face)) {
-		cout<<("ERROR::FREETYPE: Failed to load font")<<endl;
+		cout << "FONT NOT FOUND" << endl;
+
+		//Err("ERROR::FREETYPE: Failed to load font");
 	}
 
 	FT_Set_Pixel_Sizes(face, 0, FONTSIZE);
@@ -138,7 +150,6 @@ void Demo::InitText(int index) {
 			texture,
 			ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			//static_cast<GLuint>(face->glyph->advance.x)
 			face->glyph->advance.x
 		};
 		Characters.insert(pair<GLchar, Character>(c, character));
@@ -166,9 +177,16 @@ void Demo::Update(float deltaTime)
 		SDL_Quit();
 		exit(0);
 	}
-	score += deltaTime;
+	if (IsKeyDown("Restart") && isGameOver) {
+		Init();
+	}
+	if (!isGameOver) {
+		score += deltaTime;
+	}
+	
 	
 	UpdateBackground(deltaTime);
+	if(!isGameOver)
 	ControlPlayerSprite(deltaTime);
 	UpdateObstacle(deltaTime, 2, true);
 	UpdateObstacle(deltaTime, 3, true);
@@ -190,29 +208,30 @@ void Demo::Render()
 
 	//Clear the color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	mat4 projection;
+	projection = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(this->program3, "projection"), 1, GL_FALSE, value_ptr(projection));
 	//Set the background color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	mat4 projection;
-
-	//RenderText(8, "GAME OVER", 0, 0, 10, vec3(0, 0, 0));
-	
-	//DrawSprite(0);
+	//mat4 projection;
+	DrawSprite(0);
 	DrawSprite(1);
 	DrawSprite(2);
 	DrawSprite(3);
 	DrawSprite(4);
-	RenderText(8, "./Button and Text Renderer Demo", 10, 10, 1.0f, vec3(244.0f / 255.0f, 12.0f / 255.0f, 116.0f / 255.0f));
-	GameOver();
+	ShowText();
+
+	//GameOver();
 	if (isGameOver) {
 		DrawSprite(5);
+		ShowText();
 	}
 }
 
 void Demo::UpdateBackground(float deltaTime) {
 	bgControl++;
-	UseShader(this->program[0]);
-	glUniform1f(glGetUniformLocation(this->program[0], "x"), bgControl);
+	UseShader(this->program);
+	glUniform1f(glGetUniformLocation(this->program, "x"), bgControl);
 }
 
 void Demo::UpdateObstacle(float deltaTime, int i, bool randomized) {
@@ -283,17 +302,17 @@ void Demo::DrawSprite(int i) {
 	// Bind Textures using texture units
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture[i]);
-	UseShader(this->program[i]);
-	glUniform1i(glGetUniformLocation(this->program[i], "ourTexture"), 0);
+	UseShader(this->program);
+	glUniform1i(glGetUniformLocation(this->program, "ourTexture"), 0);
 
 	// set flip
-	glUniform1i(glGetUniformLocation(this->program[i], "flip"), flip);
+	glUniform1i(glGetUniformLocation(this->program, "flip"), flip);
 	mat4 model;
 	// Translate sprite along x-axis
 	model = translate(model, vec3(xpos[i], ypos[i], 0.0f));
 	// Scale sprite 
 	model = scale(model, vec3(frame_width[i], frame_height[i], 1));
-	glUniformMatrix4fv(glGetUniformLocation(this->program[i], "model"), 1, GL_FALSE, value_ptr(model));
+	glUniformMatrix4fv(glGetUniformLocation(this->program, "model"), 1, GL_FALSE, value_ptr(model));
 
 	// Draw sprite
 	glBindVertexArray(VAO[i]);
@@ -311,17 +330,17 @@ void Demo::DrawPlayerSprite() {
 	// Bind Textures using texture units
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	UseShader(this->program[0]);
-	glUniform1i(glGetUniformLocation(this->program[0], "ourTexture"), 0);
+	UseShader(this->program);
+	glUniform1i(glGetUniformLocation(this->program, "ourTexture"), 0);
 
 	// set flip
-	glUniform1i(glGetUniformLocation(this->program[0], "flip"), flip);
+	glUniform1i(glGetUniformLocation(this->program, "flip"), flip);
 	mat4 model;
 	// Translate sprite along x-axis
 	model = translate(model, vec3(xpos[0], ypos[0], 0.0f));
 	// Scale sprite 
 	model = scale(model, vec3(frame_width[0], frame_height[0], 1));
-	glUniformMatrix4fv(glGetUniformLocation(this->program[0], "model"), 1, GL_FALSE, value_ptr(model));
+	glUniformMatrix4fv(glGetUniformLocation(this->program, "model"), 1, GL_FALSE, value_ptr(model));
 
 	// Draw sprite
 	glBindVertexArray(VAO[0]);
@@ -334,12 +353,12 @@ void Demo::DrawPlayerSprite() {
 
 void Demo::Instantiate(float x, float y, int i, char* vertex,char* fragment,char* sprite,float frameNumberH, float frameNumberV)
 {
-	this->program[i] = BuildShader(vertex, fragment);
+	this->program = BuildShader(vertex, fragment);
 
 	// Pass n to shader
-	UseShader(this->program[i]);
-	glUniform1f(glGetUniformLocation(this->program[i], "n"), 1.0f / frameNumberH);
-	glUniform1f(glGetUniformLocation(this->program[i], "m"), 1.0f / frameNumberV);
+	UseShader(this->program);
+	glUniform1f(glGetUniformLocation(this->program, "n"), 1.0f / frameNumberH);
+	glUniform1f(glGetUniformLocation(this->program, "m"), 1.0f / frameNumberV);
 
 	// Load and create a texture 
 	glGenTextures(1, &texture[i]);
@@ -400,7 +419,7 @@ void Demo::Instantiate(float x, float y, int i, char* vertex,char* fragment,char
 	// Set orthographic projection
 	mat4 projection;
 	projection = ortho(0.0f, static_cast<GLfloat>(GetScreenWidth()), static_cast<GLfloat>(GetScreenHeight()), 0.0f, -1.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(this->program[i], "projection"), 1, GL_FALSE, value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(this->program, "projection"), 1, GL_FALSE, value_ptr(projection));
 
 	// set sprite position, gravity, velocity
 	xpos[i] = x;
@@ -424,6 +443,7 @@ void Demo::InputMap() {
 	InputMapping("Move Right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
 	InputMapping("Move Left", SDL_CONTROLLER_BUTTON_DPAD_LEFT);
 	InputMapping("Jump", SDLK_w);
+	InputMapping("Restart", SDLK_r);
 	InputMapping("Quit", SDLK_ESCAPE);
 }
 

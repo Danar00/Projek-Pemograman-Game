@@ -243,7 +243,7 @@ void Engine::Game::InputMapping(string mappingName, unsigned int keyId)
 }
 
 //Prints out an error message and exits the game
-void Engine::Game::Err(string errorString)
+ void Engine::Game::Err(string errorString)
 {
 	cout << errorString << endl;
 	SDL_Quit();
