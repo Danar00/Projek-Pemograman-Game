@@ -39,6 +39,12 @@
     <Image Include="game over.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="game_over.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gameOver.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="playerSprite.frag">
@@ -65,6 +71,9 @@
     <None Include="shader.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="bensound-funkyelement.ogg">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Demo.h">
@@ -86,5 +95,10 @@
     <Font Include="hongkonghustle.ttf">
       <Filter>Resource Files</Filter>
     </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="grsites.com_whirls.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
   </ItemGroup>
 </Project>

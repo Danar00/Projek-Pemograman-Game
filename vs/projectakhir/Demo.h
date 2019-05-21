@@ -4,6 +4,10 @@
 
 #include <SOIL/SOIL.h>
 
+#include <SDL/SDL_mixer.h>
+#include <SDL/SDL_thread.h>
+
+
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
@@ -14,13 +18,15 @@
 
 
 #include "Game.h"
+using namespace glm;
 
 #define NUM_FRAMES 8
 #define FRAME_DUR 80
 #define OBJECTNUMBER 100
 #define FONTSIZE 40
 #define FONTNAME "hongkonghustle.ttf"
-using namespace glm;
+#define NUM_BUTTON 3
+
 
 
 struct Character {
@@ -36,6 +42,7 @@ class Demo :
 public:
 	Demo();
 	~Demo();
+	void InitAudio();
 	virtual void Init();
 	virtual void Update(float deltaTime);
 	virtual void Render();
@@ -44,7 +51,10 @@ public:
 	float frame_width[OBJECTNUMBER], frame_height[OBJECTNUMBER], frameNumber[OBJECTNUMBER], frame_width2 = 0, frame_height2 = 0,score=0;
 private:
 	float frame_dur[OBJECTNUMBER], oldxpos[OBJECTNUMBER],oldypos[OBJECTNUMBER], xpos[OBJECTNUMBER], ypos[OBJECTNUMBER], xpos2 = 0, ypos2 = 0, gravity = 0, xVelocity[OBJECTNUMBER], yVelocity[OBJECTNUMBER], yposGround = 0, bgControl = 0;
-	GLuint VBO[OBJECTNUMBER], VAO[OBJECTNUMBER], EBO[OBJECTNUMBER], texture[OBJECTNUMBER], program[OBJECTNUMBER], VBO2, VAO2, EBO2, texture2, program2,program3;
+	GLuint VBO[OBJECTNUMBER], VAO[OBJECTNUMBER], EBO[OBJECTNUMBER], texture[OBJECTNUMBER], program, VBO2, VAO2, EBO2, texture2, program2,program3;
+	Mix_Chunk *sound = NULL;
+	Mix_Music *music = NULL;
+	int sfx_channel = -1;
 	bool walk_anim = false, onGround = true;
 	unsigned int frame_idx = 0, flip = 0;
 	void RenderText(int index,string text, GLfloat x, GLfloat y, GLfloat scale, vec3 color);
@@ -57,10 +67,11 @@ private:
 	void UpdatePlayerSpriteAnim(float deltaTime);
 	void UpdateBackground(float deltaTime);
 	void UpdateObstacle(float deltaTime, int i, bool randomized);
+	void GameOver();
 	void ControlPlayerSprite(float deltaTime);
 	void InputMap();
 	void InitText(int index);
-	void GameOver();
+	void ShowText();
 };
 #endif
 
